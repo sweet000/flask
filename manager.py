@@ -7,6 +7,8 @@ import redis
 from flask_session import Session
 import os
 import base64
+from flask_migrate import Migrate, MigrateCommand
+from flask_script import Manager
 
 class Config(object):
     # 项目的配置
@@ -38,6 +40,12 @@ app.config.from_object(Config)
 db = SQLAlchemy(app)
 redis_store = StrictRedis(host = Config.REDIS_HOST, port=Config.REDIS_PORT)
 Session(app)
+# manager启动服务命令
+manager = Manager(app)
+#数据库db和app关联起来
+Migrate(app,db)
+#将迁移命令集成的manager中
+manager.add_command('db',MigrateCommand)
 #开启crsf项目保护
 CSRFProtect(app)
 
@@ -52,4 +60,4 @@ def home():
 
 if __name__ == '__main__':
     #DEBUG is SET to TRUE. CHANGE FOR PROD
-    app.run()
+    manager.run()
